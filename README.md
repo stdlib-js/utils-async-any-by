@@ -18,6 +18,17 @@ limitations under the License.
 
 -->
 
+
+<details>
+  <summary>
+    About stdlib...
+  </summary>
+  <p>We believe in a future in which the web is a preferred environment for numerical computation. To help realize this future, we've built stdlib. stdlib is a standard library, with an emphasis on numerical and scientific computation, written in JavaScript (and C) for execution in browsers and in Node.js.</p>
+  <p>The library is fully decomposable, being architected in such a way that you can swap out and mix and match APIs and functionality to cater to your exact preferences and use cases.</p>
+  <p>When you use stdlib, you can be absolutely certain that you are using the most thorough, rigorous, well-written, studied, documented, tested, measured, and high-quality code out there.</p>
+  <p>To join us in bringing numerical computing to the web, get started by checking us out on <a href="https://github.com/stdlib-js/stdlib">GitHub</a>, and please consider <a href="https://opencollective.com/stdlib">financially supporting stdlib</a>. We greatly appreciate your continued support!</p>
+</details>
+
 # anyByAsync
 
 [![NPM version][npm-image]][npm-url] [![Build Status][test-image]][test-url] [![Coverage Status][coverage-image]][coverage-url] <!-- [![dependencies][dependencies-image]][dependencies-url] -->
@@ -34,38 +45,30 @@ limitations under the License.
 
 <!-- Package usage documentation. -->
 
+<section class="installation">
 
+## Installation
+
+```bash
+npm install @stdlib/utils-async-any-by
+```
+
+Alternatively,
+
+-   To load the package in a website via a `script` tag without installation and bundlers, use the [ES Module][es-module] available on the [`esm` branch][esm-url].
+-   If you are using Deno, visit the [`deno` branch][deno-url].
+-   For use in Observable, or in browser/node environments, use the [Universal Module Definition (UMD)][umd] build available on the [`umd` branch][umd-url].
+
+The [branches.md][branches-url] file summarizes the available branches and displays a diagram illustrating their relationships.
+
+</section>
 
 <section class="usage">
 
 ## Usage
 
-To use in Observable,
-
 ```javascript
-anyByAsync = require( 'https://cdn.jsdelivr.net/gh/stdlib-js/utils-async-any-by@umd/browser.js' )
-```
-
-To vendor stdlib functionality and avoid installing dependency trees for Node.js, you can use the UMD server build:
-
-```javascript
-var anyByAsync = require( 'path/to/vendor/umd/utils-async-any-by/index.js' )
-```
-
-To include the bundle in a webpage,
-
-```html
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/stdlib-js/utils-async-any-by@umd/browser.js"></script>
-```
-
-If no recognized module system is present, access bundle contents via the global scope:
-
-```html
-<script type="text/javascript">
-(function () {
-    window.anyByAsync;
-})();
-</script>
+var anyByAsync = require( '@stdlib/utils-async-any-by' );
 ```
 
 #### anyByAsync( collection, \[options,] predicate, done )
@@ -77,6 +80,12 @@ function predicate( value, next ) {
     setTimeout( onTimeout, value );
     function onTimeout() {
         console.log( value );
+        /* =>
+            1000
+            2500
+            3000
+        */
+
         next( null, false );
     }
 }
@@ -86,17 +95,12 @@ function done( error, bool ) {
         throw error;
     }
     console.log( bool );
+    // => false
 }
 
 var arr = [ 3000, 2500, 1000 ];
 
 anyByAsync( arr, predicate, done );
-/* =>
-    1000
-    2500
-    3000
-    false
-*/
 ```
 
 If a `predicate` function calls the `next` callback with a truthy test argument, the function stops processing any additional `collection` elements and returns `true` for the test result.
@@ -117,19 +121,19 @@ function done( error, bool ) {
         throw error;
     }
     console.log( bool );
+    // => true
 }
 
 var arr = [ 3000, 2500, 1000 ];
 
 anyByAsync( arr, predicate, done );
-// => true
 ```
 
 The function accepts the following `options`:
 
 -   `limit`: the maximum number of pending invocations at any one time. Default: `infinity`.
 -   `series`: `boolean` indicating whether to sequentially invoke the `predicate` function for each `collection` element. If `true`, the function sets `options.limit=1`. Default: `false`.
--   `thisArg`: the execution context for `fcn`.
+-   `thisArg`: the execution context for `predicate`.
 
 By default, all elements are processed concurrently, which means that the function does **not** guarantee completion order. To process each `collection` element sequentially, set the `series` option to `true`.
 
@@ -138,6 +142,12 @@ function predicate( value, next ) {
     setTimeout( onTimeout, value );
     function onTimeout() {
         console.log( value );
+        /* =>
+            3000
+            2500
+            1000
+        */
+
         next( null, false );
     }
 }
@@ -147,6 +157,7 @@ function done( error, bool ) {
         throw error;
     }
     console.log( bool );
+    // => false
 }
 
 var arr = [ 3000, 2500, 1000 ];
@@ -156,12 +167,6 @@ var opts = {
 };
 
 anyByAsync( arr, opts, predicate, done );
-/* =>
-    3000
-    2500
-    1000
-    false
-*/
 ```
 
 To limit the maximum number of pending function invocations, set the `limit` option.
@@ -171,6 +176,12 @@ function predicate( value, next ) {
     setTimeout( onTimeout, value );
     function onTimeout() {
         console.log( value );
+        /* =>
+            2500
+            3000
+            1000
+        */
+
         next( null, false );
     }
 }
@@ -180,6 +191,7 @@ function done( error, bool ) {
         throw error;
     }
     console.log( bool );
+    // => false
 }
 
 var arr = [ 3000, 2500, 1000 ];
@@ -189,12 +201,6 @@ var opts = {
 };
 
 anyByAsync( arr, opts, predicate, done );
-/* =>
-    2500
-    3000
-    1000
-    false
-*/
 ```
 
 To set the execution context of the `predicate` function, set the `thisArg` option.
@@ -244,9 +250,20 @@ The actual number of provided arguments depends on function `length`. If the `pr
 ```javascript
 function predicate( value, i, collection, next ) {
     console.log( 'collection: %s. %d: %d', collection.join( ',' ), i, value );
+    /* =>
+        collection: 3000,2500,1000. 0: 3000
+        collection: 3000,2500,1000. 1: 2500
+        collection: 3000,2500,1000. 2: 1000
+    */
     setTimeout( onTimeout, value );
     function onTimeout() {
         console.log( value );
+        /* =>
+            1000
+            2500
+            3000
+        */
+
         next( null, false );
     }
 }
@@ -256,20 +273,12 @@ function done( error, bool ) {
         throw error;
     }
     console.log( bool );
+    // => false
 }
 
 var arr = [ 3000, 2500, 1000 ];
 
 anyByAsync( arr, predicate, done );
-/* =>
-    collection: 3000,2500,1000. 0: 3000
-    collection: 3000,2500,1000. 1: 2500
-    collection: 3000,2500,1000. 2: 1000
-    1000
-    2500
-    3000
-    false
-*/
 ```
 
 #### anyByAsync.factory( \[options,] predicate )
@@ -297,7 +306,7 @@ var f = anyByAsync.factory( predicate );
 var arr1 = [ 3000, 2500, 1000 ];
 
 f( arr1, done );
-/* =>
+/* e.g., =>
     1000
     2500
     3000
@@ -307,7 +316,7 @@ f( arr1, done );
 var arr2 = [ 300, 250, 100 ];
 
 f( arr2, done );
-/* =>
+/* e.g., =>
     100
     250
     300
@@ -346,12 +355,7 @@ The function accepts the same `options` as `anyByAsync()`.
 
 <!-- eslint no-undef: "error" -->
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<body>
-<script type="text/javascript">
-(function () {
+```javascript
 var resolve = require( 'path' ).resolve;
 var readFile = require( '@stdlib/fs-read-file' );
 var anyByAsync = require( '@stdlib/utils-async-any-by' );
@@ -387,11 +391,6 @@ function predicate( file, next ) {
 }
 
 anyByAsync( files, predicate, done );
-
-})();
-</script>
-</body>
-</html>
 ```
 
 </section>
@@ -502,17 +501,17 @@ Copyright &copy; 2016-2023. The Stdlib [Authors][stdlib-authors].
 
 <!-- <related-links> -->
 
-[@stdlib/utils/any-by]: https://github.com/stdlib-js/utils-any-by/tree/umd
+[@stdlib/utils/any-by]: https://github.com/stdlib-js/utils-any-by
 
-[@stdlib/utils/async/any-by-right]: https://github.com/stdlib-js/utils-async-any-by-right/tree/umd
+[@stdlib/utils/async/any-by-right]: https://github.com/stdlib-js/utils-async-any-by-right
 
-[@stdlib/utils/async/every-by]: https://github.com/stdlib-js/utils-async-every-by/tree/umd
+[@stdlib/utils/async/every-by]: https://github.com/stdlib-js/utils-async-every-by
 
-[@stdlib/utils/async/for-each]: https://github.com/stdlib-js/utils-async-for-each/tree/umd
+[@stdlib/utils/async/for-each]: https://github.com/stdlib-js/utils-async-for-each
 
-[@stdlib/utils/async/none-by]: https://github.com/stdlib-js/utils-async-none-by/tree/umd
+[@stdlib/utils/async/none-by]: https://github.com/stdlib-js/utils-async-none-by
 
-[@stdlib/utils/async/some-by]: https://github.com/stdlib-js/utils-async-some-by/tree/umd
+[@stdlib/utils/async/some-by]: https://github.com/stdlib-js/utils-async-some-by
 
 <!-- </related-links> -->
 
